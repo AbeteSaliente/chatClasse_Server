@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<script>
+    let ws = new WebSocket("ws://localhost:8080")
+    ws.addEventListener("message",(msg)=>{console.log("messaggio: "+msg.data)})
+    ws.onopen = ()=>{
+        ws.send("log|Federico|1048")
+    }
+</script>
+<body>
+    
+</body>
+</html>

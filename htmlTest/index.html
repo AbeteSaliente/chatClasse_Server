@@ -24,10 +24,27 @@
             border-radius: 12px 0 0 0;
             overflow-y: scroll;
         }
-        #chat *{
+        #chat > *{
             padding: 5px;
             margin-left: 5px;
+            margin-right: 5px;
             border-bottom: 1px dotted black;
+        }
+        #chat > div{
+            display: flex;
+            justify-content: space-between;
+        }
+        #chat > div :nth-child(1){
+            max-width: 160px;
+            word-wrap: break-word;
+        }
+        #chat > div :nth-child(2){
+            position: relative;
+        }
+        #list *{
+            padding: 5px;
+            margin-inline: 5px;
+            border-bottom: 1px dotted lightgray;
         }
         #app{
             border: 1px solid black;
@@ -41,20 +58,13 @@
         }
         #list{
             border: 1px solid black;
+            overflow-x: hidden;
             border-radius: 0 12px 0 0;
         }
         #msg{margin-right: 20px;}
         #logIn{margin-left: 20px;}
     </style>
 </head>
-<script>
-    let ws = new WebSocket("ws://localhost:8080")
-    ws.addEventListener("message",(msg)=>{console.log("messaggio: "+msg.data)})
-    ws.onopen = ()=>{
-        ws.send("log|Federico|1047")
-        ws.send("msg|Federico|10/11/2024|ciaooo")
-    }
-</script>
 <body>
     <div id="schermo">
         <div id="chat"></div>
@@ -66,4 +76,56 @@
         </div>
     </div>
 </body>
+<script>
+    const Ws = new WebSocket("ws://localhost:8080")
+    const Chat = document.getElementById("chat")
+    const List = document.getElementById("list")
+    const Msg = document.getElementById("msg")
+    const Send = document.getElementById("send")
+    const LogIn = document.getElementById("logIn")
+    let logged = false
+    let nome;
+    let password;
+
+    Ws.addEventListener("message",(msg)=>{
+        let messaggio = msg.data.split("|")
+        if(messaggio[0]=="rlo"){
+            if (messaggio[1]=="login effettuato") {
+                console.log("loggato")
+                logged=true
+            }
+        }
+        if(messaggio[0]=="msg"){
+            let div = document.createElement("div")
+            div.innerHTML="<div>"+messaggio[1]+":"+messaggio[3]+"</div>"+"<div>"+messaggio[2]+"</div>"
+            Chat.appendChild(div)
+        }
+        if (messaggio[0]=="ele") {
+            List.innerHTML=""
+            for (let index = 1; index < messaggio.length; index++) {
+                const element = messaggio[index];
+                let div = document.createElement("div")
+                div.innerHTML=element
+                List.appendChild(div)
+            }
+        }
+    })
+
+    LogIn.addEventListener("click",()=>{
+        nome = prompt("Nome")
+        password = prompt("Password")
+        Ws.send("log|"+nome+"|"+password)
+    })
+
+    Send.addEventListener("click",()=>{
+        if(logged) {
+            let data = (new Date()).getDay()+"/"+(new Date()).getMonth()+"/"+(new Date()).getFullYear()+" "+(new Date()).getHours()+":"+(new Date()).getMinutes()
+            let div = document.createElement("div")
+            Ws.send("msg|"+nome+"|"+data+"|"+Msg.value)
+            div.innerHTML="<div>Tu:"+Msg.value+"</div>"+"<div>"+data+"</div>"
+            Chat.appendChild(div)
+            Msg.value=""
+        }
+    })
+</script>
 </html>

@@ -34,7 +34,20 @@ server.on("connection",(socket)=>{
             }
         }
         if(msg[0]=="msg"){
-            //
+            let names = Object.keys(clients)
+            for (let index = 0; index < names.length; index++) {
+                const element = names[index];
+                if (element == msg[1] && clients[element].ws != null && msg[2] != "") {
+                    let i = 0
+                    server.clients.forEach(sk => {
+                        if (sk != clients[names[i]].ws) {
+                            let x = data.toString()
+                            sk.send(x)
+                        }
+                        i ++
+                    });
+                }
+            }
         }
     })
     

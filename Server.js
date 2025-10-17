@@ -8,6 +8,7 @@ const clients = {
     "Federico":{psw:"1047",ws:null},
     "Alessandro":{psw:"4851",ws:null}
 }
+let connessi = []
 
 server.on("connection",(socket)=>{
     console.log("Client connected")
@@ -19,39 +20,70 @@ server.on("connection",(socket)=>{
             let names = Object.keys(clients)
             let logged = false
             for (let index = 0; index < names.length; index++) {
-                if (msg[1] == names[index] && msg[2] == clients[names[index]].psw) {
+                if (msg[1] == names[index] && msg[2] == clients[names[index]].psw && clients[names[index]].ws == null) {
                     clients[names[index]].ws = socket
+                    connessi.push(names[index])
                     logged=true
                 }
             }
-            
+
+            server.clients.forEach(sk => {
+                sk.send(Protocollo(connessi))
+            });
+
             if(logged){
                 socket.send("rlo|login effettuato")
                 console.log("logged")
+                console.log(connessi)
             }else{
                 socket.send("rlo|login errato")
                 console.log("errog log")
             }
         }
+
         if(msg[0]=="msg"){
             let names = Object.keys(clients)
             for (let index = 0; index < names.length; index++) {
                 const element = names[index];
+                if (msg[0]==undefined || msg[1]==undefined || msg[2]==undefined || msg[3]==undefined) {
+                    return
+                }
                 if (element == msg[1] && clients[element].ws != null && msg[2] != "") {
-                    let i = 0
-                    server.clients.forEach(sk => {
-                        if (sk != clients[names[i]].ws) {
+                    server.clients.forEach((s)=>{
+                        if (socket!=s) {
                             let x = data.toString()
-                            sk.send(x)
+                            s.send(x)
                         }
-                        i ++
-                    });
+                    })
                 }
             }
         }
+
     })
     
     socket.on("close",()=>{
         console.log("Client disconnected")
+        let names = Object.keys(clients)
+        for (let index = 0; index < names.length; index++) {
+            const element = clients[names[index]];
+            if (socket==element.ws) {
+                connessi = connessi.filter(item => item !== names[index]);
+                element.ws = null
+                console.log(connessi)
+            }
+        }
+
+        server.clients.forEach(sk => {
+            sk.send(Protocollo(connessi))
+        });
     })
 })
+
+function Protocollo(l = []) {
+    let lString = "ele"
+    for (let index = 0; index < l.length; index++) {
+        const element = l[index];
+        lString+="|"+element
+    }
+    return lString
+}

@@ -20,15 +20,16 @@ server.on("connection",(socket)=>{
             let names = Object.keys(clients)
             let logged = false
             for (let index = 0; index < names.length; index++) {
-                if (msg[1] == names[index] && msg[2] == clients[names[index]].psw && clients[names[index]].ws == null) {
-                    clients[names[index]].ws = socket
-                    connessi.push(names[index])
+                let element = names[index]
+                if (msg[1] == element && msg[2] == clients[element].psw && clients[element].ws == null) {
+                    clients[element].ws = socket
+                    connessi.push(element)
                     logged=true
                 }
             }
 
             server.clients.forEach(sk => {
-                sk.send(Protocollo(connessi))
+                sk.send(Connessi(connessi))
             });
 
             if(logged){
@@ -49,12 +50,12 @@ server.on("connection",(socket)=>{
                     return
                 }
                 if (element == msg[1] && clients[element].ws != null && msg[2] != "") {
-                    server.clients.forEach((s)=>{
-                        if (socket!=s) {
-                            let x = data.toString()
-                            s.send(x)
+                    for (const [key, value] of Object.entries(clients)) {
+                        let x = data.toString()
+                        if (value.ws!=null && value.ws != socket) {
+                            value.ws.send(x)
                         }
-                    })
+                    }
                 }
             }
         }
@@ -74,12 +75,12 @@ server.on("connection",(socket)=>{
         }
 
         server.clients.forEach(sk => {
-            sk.send(Protocollo(connessi))
+            sk.send(Connessi(connessi))
         });
     })
 })
 
-function Protocollo(l = []) {
+function Connessi(l = []) {
     let lString = "ele"
     for (let index = 0; index < l.length; index++) {
         const element = l[index];

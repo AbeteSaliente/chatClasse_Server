@@ -28,10 +28,6 @@ server.on("connection",(socket)=>{
                 }
             }
 
-            server.clients.forEach(sk => {
-                sk.send(Connessi(connessi))
-            });
-
             if(logged){
                 socket.send("rlo|login effettuato")
                 console.log("logged")
@@ -40,6 +36,10 @@ server.on("connection",(socket)=>{
                 socket.send("rlo|login errato")
                 console.log("errog log")
             }
+
+            server.clients.forEach(sk => {
+                sk.send(Connessi(connessi))
+            });
         }
 
         if(msg[0]=="msg"){
@@ -52,7 +52,7 @@ server.on("connection",(socket)=>{
                 if (element == msg[1] && clients[element].ws != null && msg[2] != "") {
                     for (const [key, value] of Object.entries(clients)) {
                         let x = data.toString()
-                        if (value.ws!=null && value.ws != socket) {
+                        if (value.ws!=null) {
                             value.ws.send(x)
                         }
                     }

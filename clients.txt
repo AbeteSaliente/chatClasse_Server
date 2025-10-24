@@ -1,0 +1,7 @@
+Daniele|1234
+Giacomo|9936
+Ludovico|3957
+Leonardo|8562
+Federico|1047
+Alessandro|4851
+Fabio|1128

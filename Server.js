@@ -1,15 +1,10 @@
-//Costanti nodulo websocket(npm), server(porta 8080)
+//Costanti modulo websocket(npm), modulo fs, server(porta 8080)
 const ws = require("ws")
+const Fs = require("fs")
 const server = new ws.Server({port:8080})
 
-const clients = {
-    "Daniele":{psw:"1234",ws:null},
-    "Giacomo":{psw:"9936",ws:null},
-    "Ludovico":{psw:"3957",ws:null},
-    "Leonardo":{psw:"8562",ws:null},
-    "Federico":{psw:"1047",ws:null},
-    "Alessandro":{psw:"4851",ws:null}
-}
+const clients = {}
+LeggiClient(clients)
 
 //lista client connessi e loggati
 let connessi = []
@@ -97,4 +92,17 @@ function Connessi(l = []) {
         lString+="|"+element
     }
     return lString
+}
+
+//legge nome e password dei clienti dal file clients.txt (fs)
+function LeggiClient(d={}) {
+    let leggi = Fs.readFileSync("clients.txt","utf8")
+
+    leggi = leggi.split("\n")
+    for (let index = 0; index < leggi.length; index++) {
+        const element = leggi[index].split("|");
+        if (leggi[index]!="") {
+            d[element[0]] = {psw:element[1],ws:null}
+        }
+    }
 }

@@ -1,5 +1,7 @@
+//Costanti nodulo websocket(npm), server(porta 8080)
 const ws = require("ws")
 const server = new ws.Server({port:8080})
+
 const clients = {
     "Daniele":{psw:"1234",ws:null},
     "Giacomo":{psw:"9936",ws:null},
@@ -8,14 +10,19 @@ const clients = {
     "Federico":{psw:"1047",ws:null},
     "Alessandro":{psw:"4851",ws:null}
 }
+
+//lista client connessi e loggati
 let connessi = []
 
+//evento connessione client al server
 server.on("connection",(socket)=>{
     console.log("Client connected")
 
+    //messaggio dal client
     socket.on("message",(data)=>{
         let msg = data.toString().split("|")
         console.log(data.toString())
+        //log|nome|passw
         if(msg[0]=="log"){
             let names = Object.keys(clients)
             let logged = false
@@ -41,7 +48,7 @@ server.on("connection",(socket)=>{
                 sk.send(Connessi(connessi))
             });
         }
-
+        //msg|nome|data|msg
         if(msg[0]=="msg"){
             let names = Object.keys(clients)
             for (let index = 0; index < names.length; index++) {
@@ -62,6 +69,7 @@ server.on("connection",(socket)=>{
 
     })
     
+    //disconnessione client
     socket.on("close",()=>{
         console.log("Client disconnected")
         let names = Object.keys(clients)
@@ -80,6 +88,8 @@ server.on("connection",(socket)=>{
     })
 })
 
+//l=[federico,daniele] ==> ele|federico|daniele
+//ele|nome1|nome2|nome3...
 function Connessi(l = []) {
     let lString = "ele"
     for (let index = 0; index < l.length; index++) {
